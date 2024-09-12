@@ -38,7 +38,7 @@ def carregar_dados():
     df['Dia'] = pd.to_datetime(df['Dia'], format='%d/%m/%Y')
     return df
 
-# Função para plotar gráfico de progresso
+# Função para plotar gráfico de progresso com os dias da semana
 def plotar_progresso(df, tipo_exercicio, periodo):
     if not df.empty:
         df_filtrado = df[df['Tipo de Exercício'] == tipo_exercicio]
@@ -56,10 +56,13 @@ def plotar_progresso(df, tipo_exercicio, periodo):
             st.warning("Nenhum dado disponível para o período selecionado.")
             return
 
+        # Adicionar a coluna com o nome dos dias da semana
+        df_filtrado['Dia da Semana'] = df_filtrado.index.strftime('%A')
+
         plt.figure(figsize=(10, 5))
-        plt.plot(df_filtrado.index, df_filtrado['Repetições Totais'], marker='o')
+        plt.plot(df_filtrado['Dia da Semana'], df_filtrado['Repetições Totais'], marker='o')
         plt.title(f"Progresso de {tipo_exercicio} por {periodo}")
-        plt.xlabel("Data")
+        plt.xlabel("Dia da Semana")
         plt.ylabel("Repetições Totais")
         plt.grid(True)
         st.pyplot(plt)
@@ -94,3 +97,4 @@ if not df.empty:
 
     if st.button("Mostrar Gráfico"):
         plotar_progresso(df, exercicio_selecionado, periodo_selecionado)
+
