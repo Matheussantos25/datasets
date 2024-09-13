@@ -1,4 +1,4 @@
-import streamlit as st 
+import streamlit as st
 import csv
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -38,11 +38,8 @@ def plotar_progresso(df, tipo_exercicio, periodo):
     if not df.empty:
         df_filtrado = df[df['Tipo de Exercício'] == tipo_exercicio]
 
-        # Filtrar apenas a última semana se o período for Diário
         if periodo == 'Diário':
-            # Ordenar por data e pegar apenas os últimos 7 dias
-            df_filtrado = df_filtrado.sort_values(by='Dia').tail(7)
-            df_filtrado['Dia da Semana'] = df_filtrado['Dia'].dt.day_name()
+            df_filtrado = df_filtrado.groupby(pd.Grouper(key='Dia', freq='D')).sum()
         elif periodo == 'Semana':
             df_filtrado = df_filtrado.groupby(pd.Grouper(key='Dia', freq='W')).sum()
         elif periodo == 'Mês':
@@ -53,6 +50,9 @@ def plotar_progresso(df, tipo_exercicio, periodo):
         if df_filtrado.empty:
             st.warning("Nenhum dado disponível para o período selecionado.")
             return
+
+        # Adicionar a coluna com o nome dos dias da semana
+        df_filtrado['Dia da Semana'] = df_filtrado.index.strftime('%A')
 
         plt.figure(figsize=(10, 5))
         plt.plot(df_filtrado['Dia da Semana'], df_filtrado['Repetições Totais'], marker='o')
