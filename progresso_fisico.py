@@ -11,13 +11,8 @@ arquivo_csv = 'exercicios_diarios.csv'
 cabecalho = ['Dia', 'Tipo de Exercício', 'Repetições Totais', 'Número de Séries', 'Duração (min)', 'Horário', 'Intervalo entre Séries (min)']
 
 # Função para adicionar um novo registro de exercício
-def adicionar_exercicio(dia, mes, ano, tipo_exercicio, repeticoes_totais, numero_series, duracao, horario, intervalo_series):
-    dia_completo = f"{dia}-{mes}-{ano}"
-    try:
-        dia_formatado = datetime.strptime(dia_completo, '%d-%m-%Y').strftime('%d/%m/%Y')
-    except ValueError:
-        st.error("Formato de data inválido.")
-        return
+def adicionar_exercicio(data_exercicio, tipo_exercicio, repeticoes_totais, numero_series, duracao, horario, intervalo_series):
+    dia_formatado = data_exercicio.strftime('%d/%m/%Y')
 
     # Adicionar os dados no arquivo CSV
     with open(arquivo_csv, 'a', newline='', encoding='utf-8') as arquivo:
@@ -70,9 +65,13 @@ def plotar_progresso(df, tipo_exercicio, periodo):
 # Interface do usuário
 st.title("Registro de Exercícios Diários")
 
-dia = st.selectbox("Dia", list(range(1, 32)))
-mes = st.selectbox("Mês", list(range(1, 13)))
-ano = st.selectbox("Ano", list(range(2023, 2025)))
+# Substituir selectboxes por um date_input para o calendário completo
+data_exercicio = st.date_input("Escolha a data", datetime.now())
+
+# Dividindo a data em dia, mês e ano
+dia = data_exercicio.day
+mes = data_exercicio.month
+ano = data_exercicio.year
 
 # Adicionar lista de exercícios para o usuário escolher
 exercicios = ['Flexão', 'Barra Sem Peso', 'Barra Com Peso', 'Agachamento', 'Pular Corda', 'Andar de Bike', 'Prancha']
@@ -85,7 +84,7 @@ horario = st.text_input("Digite o horário do exercício (HH:MM):")
 intervalo_series = st.text_input("Digite o tempo de intervalo entre as séries (em minutos):")
 
 if st.button("Adicionar Exercício"):
-    adicionar_exercicio(dia, mes, ano, tipo_exercicio, repeticoes_totais, numero_series, duracao, horario, intervalo_series)
+    adicionar_exercicio(data_exercicio, tipo_exercicio, repeticoes_totais, numero_series, duracao, horario, intervalo_series)
 
 df = carregar_dados()
 
@@ -97,4 +96,3 @@ if not df.empty:
 
     if st.button("Mostrar Gráfico"):
         plotar_progresso(df, exercicio_selecionado, periodo_selecionado)
-
