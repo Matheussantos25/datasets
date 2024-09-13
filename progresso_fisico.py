@@ -60,30 +60,39 @@ def plotar_progresso(df, tipo_exercicio, periodo):
         elif periodo == 'Semestre':
             df_filtrado = df_filtrado.groupby(pd.Grouper(key='Dia', freq='6M')).sum()
 
-        if df_filtrado.empty:
-            st.warning("Nenhum dado disponível para o período selecionado.")
-            return
-
-        # Adicionar a coluna com o nome dos dias da semana
-        df_filtrado['Dia da Semana'] = df_filtrado.index.strftime('%A')
-
-        # Plotar o progresso em relação às repetições totais
+        # Mesmo que o DataFrame filtrado esteja vazio, vamos garantir que o gráfico seja exibido
         plt.figure(figsize=(10, 5))
-        plt.plot(df_filtrado['Dia da Semana'], df_filtrado['Repetições Totais'], marker='o')
-        plt.title(f"Progresso de {tipo_exercicio} por {periodo}")
+        if df_filtrado.empty:
+            plt.title(f"Sem dados para {tipo_exercicio} por {periodo}")
+        else:
+            df_filtrado['Dia da Semana'] = df_filtrado.index.strftime('%A')
+            plt.plot(df_filtrado['Dia da Semana'], df_filtrado['Repetições Totais'], marker='o')
+            plt.title(f"Progresso de {tipo_exercicio} por {periodo}")
+
         plt.xlabel("Dia da Semana")
         plt.ylabel("Repetições Totais")
         plt.grid(True)
         st.pyplot(plt)
 
-        # Exibir a distribuição de horários (manhã, tarde, noite)
+        # Plotar a distribuição de horários mesmo com dados vazios
         plt.figure(figsize=(10, 5))
         df_horario = df[df['Tipo de Exercício'] == tipo_exercicio]['Período'].value_counts()
-        df_horario.plot(kind='bar', color=['skyblue', 'orange', 'green'])
-        plt.title(f"Distribuição de horários para {tipo_exercicio}")
-        plt.xlabel("Período do Dia")
-        plt.ylabel("Número de Exercícios")
+
+        if df_horario.empty:
+            plt.title(f"Sem dados de horários para {tipo_exercicio}")
+        else:
+            df_horario.plot(kind='bar', color=['skyblue', 'orange', 'green'])
+            plt.title(f"Distribuição de horários para {tipo_exercicio}")
+            plt.xlabel("Período do Dia")
+            plt.ylabel("Número de Exercícios")
+
         plt.grid(True)
+        st.pyplot(plt)
+    else:
+        # Se o DataFrame estiver completamente vazio, mostra um aviso e um gráfico vazio
+        st.warning("Nenhum dado disponível.")
+        plt.figure(figsize=(10, 5))
+        plt.title("Nenhum dado disponível")
         st.pyplot(plt)
 
 # Interface do usuário
